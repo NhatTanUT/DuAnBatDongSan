@@ -6,23 +6,23 @@ const cors = require("cors");
 const createError = require("http-errors");
 
 const { connectDatabase } = require("./config/connectDatabase");
+const uploadFile = require('./utils/uploadExcel');
+const { checkImportData } = require("./middlewares/checkImportData");
 
 const app = express();
 
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false  }));
 app.use(express.json());
 
-app.get("/", (req, res, next) => {
+// app.use(express.static(path.join(__dirname, 'uploads')))
+
+app.post("/importExcel", uploadFile.single('file1'), checkImportData, (req, res, next) => {
     try {
-        var xlsx = require("node-xlsx");
+        return res.json({data: res.locals.data})
 
-        var obj = xlsx.parse(__dirname + "/data.xlsx"); // parses a file
-
-        // var obj = xlsx.parse(fs.readFileSync(__dirname + "/data.xlsx"));
-        return res.json({ msg: obj });
     } catch (error) {
         next(createError(400, {msg: error.message}))
     }
